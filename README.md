@@ -241,12 +241,181 @@ Alright. I've left out the usual suspects in the above tree and focused on the m
 
 One thing to note, and this really messed me up -- the style sheet is called "globals.css" globalSSSSSSS with an `s` so be sure you are naming your imports correctly. There ... I just saved you 25-40 minutes. 
 
+### Implementing Preview Mode
+
+Because we are using Sanity for our CMS we will be pre-authoring our content for publication to our site. Now, because this particular site is mine alone, this may not be fully necessary - but what happens when you are building a site with a CMS for another end user. They will likely want to see how things might look before hitting the "Publish" button and this is where Preview mode comes in
+
+#### Preview Config
+
+1. At the top level of your project, create a `lib` folder 
+2. In the `lib` folder create a new file `sanity.client.ts` 
+3. Import the `sanityClient` from `next-sanity` and our environment variables 
+    ```
+    import { createClient } from 'next-sanity'
+
+    export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+    export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
+    const apiVersion = process.env. NEXT_PUBLIC_SANITY_API_VERSION
+    ```
+4. Below the environment variables, we will export the client function: 
+    ```
+    export const client = createClient({
+      projectId,
+      dataset,
+      apiVersion,
+      useCdn: false
+    });
+    ```
+5. Create another new file in `lib` called `sanity.preview.ts` which will help with our Preview configuration 
+6. Convert this to a client-side component by starting the file with `"use client";` and then pull in some helpers:
+    ```
+    "use client";
+
+    import { definePreview } from 'next-sanity/preview';
+    import { projectId, dataset } from './sanity.client';
+    ```
+7. Below these imports, we will add two other helper functions that requires the user to login if they are not and checks that the dataset adn projectId are present. If these check out then we export a hook called `usePreview`:
+    ```
+    function onPublicAccessOnly() {
+      throw new Error(`Unable to load preview as you are not logged in`)
+    }
+
+    if (!projectId || !dataset) {
+      throw new Error(
+        `Missing projectId or dataset. Check your sanity.json or .env`
+      )
+    }
+
+    export const usePreview = definePreview({
+      projectId,
+      dataset,
+      onPublicAccessOnly
+    })
+    ```
+
+#### Preview API config
+
+1. We now need to enable the API to work with our Preview mode. Head into the `pages/api` folder and we will delete the `hello.ts` file there.  
+2. Create a new file in the `pages/api` folder called `preview.ts`. Inside this file add the following to initialize the Preview and to exit the preview:
+  
+  ```
+    import type { NextApiRequest, NextApiResponse } from 'next';
+
+    // Initialize preview
+      export const usePreview = definePreview({
+      projectId,
+      dataset,
+      onPublicAccessOnly
+    })
+  ```
+3. Create another file in the `pages/api` folder called `exit-preview.ts`
+
+  ```
+  import type { NextApiRequest, NextApiResponse } from 'next';
+
+  export default function exit(req: NextApiRequest, res: NextApiResponse) {
+    res.clearPreviewData();
+    res.writeHead(307, { Location: '/'});
+    res.end();
+  }
+  ```
+4. Navigate to `user/page.tsx` - we are going to check that our preview mode is working and set conditions for what mode is displayed. 
+5. Import this helper function from Next.js - `import { previewData } from 'next/headers'`
+6. The `pages.tsx' file will look like this in order to present the content we request depending on if we are in preview mode or not
+    ```
+    import { previewData } from 'next/headers'
+
+    export default function Home() {
+
+      if (previewData()) {
+        return <div>Preview Mode</div>
+      }
+
+      return(
+        <div> 
+          <h1>Not Preview</h1>
+        </div>
+      )
+
+    }
+    ```
+7. Now lets test out our preview / non-preview modes. In your browser, navigate to `http://localhost:3000/api/preview` and have a look at the output. You should see "preview" printed there. Now navigate `http://localhost:3000/api/exit-preview` and you should be in the "Not preview" mode. 
+
+### Querying Sanity.io for Data using Groq
+
+Groq is a GraphQL-esqe language created by Sanity for querying and fetching data from the API. Groq provides us with a module to enable the use of the language. We'll use this in each component where we're using Groq. 
+
+In the `app/(user)/page.tsx` file, let's create our first query. 
+
+1. At the top of the file add `import { groq } from 'next-sanity'`
+2. Then we begin our groq query in our query function using backticks. Enter the first query: 
+    ```
+    const query = groq`
+      *[_type=='project'] {
+        
+      }
+    `
+    ```
+
 
 ---
 ## Part II
 
 ## Building Headers & Pages with Styling
 
-### Create the Headers
+### Create the Header
 
 1. In the `app` folder, create a new folder for our components called .... `components` 
+2. Create a functional component in a file called `Header.tsx`
+3. Add This - Change the text to what you want. Change your route to your own logo. I stored mine in the `public` folder: 
+    ```
+    import Image from 'next/image'
+    import Link from 'next/link'
+    import Logo from '../../public/BG-Logo.png'
+
+    function Header() {
+      return (
+        <header className='flex items-center justify-between space-x-2 font-bold px-10 py-5'>
+          <div className='flex items-center space-x-2'>
+            <Link href='/'>
+              <Image
+                src={Logo}
+                width={50}
+                height={50}
+                className='rounded-full'
+                alt='logo'
+              />
+            </Link >
+            <h1>BG Web Dev & Homelab</h1>
+          </div>
+          <div className="px-5 py-3 text-sm md:text-base bg-gray-900 text-pink-400 flex items-center  rounded-full text-center">See my latest &nbsp; <span className='text-green-300 inline-block'>HomeLab</span> &nbsp; Projects</div>
+        </header>
+      )
+    }
+
+    export default Header
+    ```
+
+### Create the Banner
+    
+Create a new file in `Components` called `Banner.tsx` and add some content: 
+
+    ```
+    function Banner() {
+      return (
+        <div className='flex flex-col lg:flex-row lg:space-x-5 justify-between font-medium px-10 py-5 mb-5'>
+          <div>
+            <h1 className='text-7xl'>My Life in Tech</h1>
+            <h2 className="mt-5 md:mt-0">
+              Web Projects, Techno-philosophical commentary, My personal IT #Homelab & More
+            </h2>
+          </div>
+          <p className='mt-5 md:mt-2 text-gray-400 max-w-sm'>
+            Portfolio of Web Projects || Meandering Thoughts on Tech and Life || Homelab Projects and Guides || List of Linked Articles and Pages to Care About
+          </p>
+        </div>
+      )
+    }
+
+    export default Banner
+    ```

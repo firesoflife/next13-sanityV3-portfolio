@@ -1,11 +1,15 @@
-import React from 'react'
+import { previewData } from 'next/headers'
 
-function HomePage() {
+export default function Home() {
+
+  if (previewData()) {
+    return <div>Preview Mode</div>
+  }
+
   return (
     <div>
-      <h1 className='text-4xl'>My Web Dev Portfolio, Blog and IT Homelab Musings</h1>
+      <h1>Not Preview</h1>
     </div>
   )
-}
 
-export default HomePage
+}
