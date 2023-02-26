@@ -4,7 +4,7 @@ export default {
   title: 'Machine',
   fields: [
     {
-      name: 'machine',
+      name: 'machine_title',
       type: 'string',
       title: 'Machine Title'
     },
@@ -45,6 +45,11 @@ export default {
                 description: 'RAM type, name, brand etc'
               },
               {
+                name: 'capacity',
+                type: 'string',
+                title: 'Capacity (in GB)'
+              },
+              {
                 name: 'module_count',
                 type: 'string',
                 title: 'Number of RAM Modules',
@@ -70,118 +75,160 @@ export default {
         },
         {
           name: 'case',
-          title: 'Case / Chasis',
-          type: 'string'
+          title: 'Case / Chassis',
+          type: 'object',
+          fields: [
+            {
+              name: 'case_brand',
+              type: 'string',
+              title: 'Case Brand'
+            },
+            {
+              name: 'model',
+              type: 'string',
+              title: 'Model or series',
+            },
+            {
+              name: 'cooling_and_fans',
+              title: 'Cooling & Fans',
+              type: 'array',
+              of: [
+                {
+                  type: 'reference',
+                  to: [
+                    {
+                      type: 'cooling'
+                    }
+                  ]
+                }
+              ]
+            },
+
+            {
+              name: 'features',
+              type: 'array',
+              title: 'Key Features',
+              of: [{ type: 'string' }],
+              options: {
+                list: [
+                  { title: 'glass on front', value: 'front_glass' },
+                  { title: 'glass on one side', value: 'side_glass_one' },
+                  { title: 'glass on two sides', value: 'side_glass_two' },
+                  { title: 'mesh airflow', value: 'mesh' },
+                  { title: 'dual compartment', value: 'dual' }
+                ]
+              }
+            }
+          ]
         },
         {
           name: 'gpu',
           title: 'GPU',
-          type: 'string'
-        },
-        {
-          title: 'Storage',
-          name: 'storage',
           type: 'object',
           fields: [
-            {
-              name: 'storage_type',
-              type: 'string',
-              title: 'Storage Type',
-              options: {
-                list: [
-                  {
-                    title: 'SSD', value: 'ssd'
-                  },
-                  {
-                    title: 'HDD', value: 'hdd'
-                  },
-                  {
-                    title: 'NVMe', value: 'nvme'
-                  },
-                  {
-                    title: 'M.2', value: 'm2'
-                  },
-                ]
-              }
-            },
             {
               name: 'brand',
-              type: 'string',
-              title: 'Brand / Maker'
+              title: 'GPU Brand / Maker',
+              type: 'string'
             },
             {
-              name: 'series',
+              name: 'model',
+              title: 'Model and Series Number',
               type: 'string',
-              title: 'Drive Series'
             },
             {
-              name: 'capacity',
-              type: 'string',
-              title: 'capacity'
-            },
-          ]
-        },
-        {
-          name: 'peripherals',
-          type: 'object',
-          title: 'Peripherals',
-          fields: [
-            {
-              name: 'keyboard',
-              type: 'string',
-              title: 'Keyboard'
+              name: 'gpu_maker',
+              title: 'GPU Chip Maker',
+              type: 'string'
             },
             {
-              name: 'mouse',
-              type: 'string',
-              title: 'Mouse',
-            },
-            {
-              name: 'sound',
-              type: 'string',
-              title: 'Sound devices / Sound Cards'
-            },
-            {
-              name: 'other',
-              type: 'string',
-              title: 'Other equipment',
-              description: 'Things like hubs, important connectors, KVM etc'
+              name: 'memory',
+              title: 'GPU RAM',
+              type: 'string'
             }
           ]
         },
+        {
+          name: 'storage_drives',
+          title: 'Storage Drives',
+          type: 'array',
+          of: [{
+            type: 'reference',
+            to: [
+              { type: 'storage' }
+            ]
+          }]
+        },
+
         {
           name: 'os',
           type: 'string',
           title: 'Operating System'
         },
+      ],
+    },
+    {
+      name: 'peripheral_device',
+      type: 'array',
+      title: 'Content',
+      of: [
         {
-          name: 'virtual_machines',
-          type: 'object',
-          title: 'Virtual Machines Running',
-          fields: [
-            {
-              name: 'hypervisor',
-              type: 'string',
-              title: 'Hypervisor'
-            },
-            {
-              name: 'virtual_os',
-              type: 'string',
-              title: 'Virtualized OS'
-            },
-            {
-              name: 'services',
-              type: 'string',
-              title: 'Services Running'
-            },
-            {
-              name: 'spec_allocations',
-              type: 'text',
-              title: 'Hardware allocations'
-            }
+          type: 'block'
+        }
+      ]
+    },
+    {
+      name: 'peripheral_used',
+      title: 'Peripheral Used With Device',
+      type: 'array',
+      of: [{
+        type: 'reference',
+        to: [
+          { type: 'peripheral' }
+        ]
+      }]
+    },
+    {
+      name: 'virtual_machines',
+      title: 'Running Virtual Machines',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [
+            { type: 'virtualMachine' }
           ]
         }
-      ],
-    }
+      ]
+    },
   ]
 }
+
+// {
+//   name: 'peripherals',
+//     type: 'object',
+//       title: 'Peripherals',
+//         fields: [
+//           {
+//             name: 'keyboard',
+//             type: 'string',
+//             title: 'Keyboard'
+//           },
+//           {
+//             name: 'mouse',
+//             type: 'string',
+//             title: 'Mouse',
+//           },
+//           {
+//             name: 'sound',
+//             type: 'string',
+//             title: 'Sound devices / Sound Cards'
+//           },
+//           {
+//             name: 'other',
+//             type: 'string',
+//             title: 'Other equipment',
+//             description: 'Things like hubs, important connectors, KVM etc'
+//           },
+//         ]
+// },

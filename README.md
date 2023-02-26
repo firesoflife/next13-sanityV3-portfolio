@@ -153,7 +153,7 @@ With our project set up the way it is, we essentially hace two platforms in one,
     ```
 9. Restart you server
 
-### Embed the Sanaity Studio in the Next.js Project
+### Embed the Sanity Studio in the Next.js Project
 
 The following steps are pulled from the next-sanity dependencies documentation [found here](https://www.npmjs.com/package/next-sanity)
 
@@ -341,9 +341,44 @@ Because we are using Sanity for our CMS we will be pre-authoring our content for
     ```
 7. Now lets test out our preview / non-preview modes. In your browser, navigate to `http://localhost:3000/api/preview` and have a look at the output. You should see "preview" printed there. Now navigate `http://localhost:3000/api/exit-preview` and you should be in the "Not preview" mode. 
 
+### Build a Schema or Two or Three
+
+So, we have some stuff that has connected some stuff from some stuff to some other stuff. But we don't have any stuff in the stuff. Translation: We have connected our Sanity app to our Next.js app, but we need to A) create the container for that content that can be added and edited in the Sanity Studio, and then B) Display the added content on our front end Next.js app. Let's get started with building out some schemas that will build out our content management for our site. 
+
+Ok, we need schemas and we need content. If you are familiar with GraphQL, this won't be too unfamiliar, though there are a few rules that need to be followed when using some common elements in building our Schema.
+
+Our schemas are typically of a type `document` and comprised of `objects` with `types'. This is where the [Sanity Schema Documentation](https://www.sanity.io/docs/schema-types) is of utmost importance - it's also really easy to follow once you have some general understanding of how to structure common elements. Here is one of the most common elements you'll be using. 
+
+```
+{
+  name: 'name_of_object',
+  title: 'This is what shows up above the input field informing the user what to enter'
+  type: 'string',
+}
+```
+
+Name and Type are required fields. The above snippet will be found nested inside a larger structure, usually in a type called a `document`. Some of the more common types used in a `document` are `object`, `string`, `array`, `boolean` and `reference`. Each of these types will have their own fields, some of which will be required, and others that will offer additional `options`. Check over the Schema types as there are some good examples, but ultimately building schemas, making a few mistakes and getting familiar with them through playing around is the best. Here is my set of schemas. Take these and play with them, alter them and make them your own.
+
+[ADD SCHEMA FILES OR LINKS HERE ]
+
+
 ### Querying Sanity.io for Data using Groq
 
-Groq is a GraphQL-esqe language created by Sanity for querying and fetching data from the API. Groq provides us with a module to enable the use of the language. We'll use this in each component where we're using Groq. 
+In a related way to our schema design, Groq is a GraphQL-esqe language created by Sanity for querying and fetching data from the API. Groq provides us with a module to enable the use of the language. We'll use this in each component where we're using Groq. 
+
+#### Install Sanity Vision (A Groq Playground for your Data)
+
+There is a special tool we can install into our Sanity Studio that will allow us to play with our data a formulate test queries before we jam them into the code. Let's install the Sanity 'Vision' tool to help test our groq queries. 
+
+1. In your root directory, run `sanity install @sanity/vision`
+2. Reload your studio and alongside your "Desktop" you should also see a new pane called "Vision"
+    [Insert SanityImage1 here]
+3. Kill your server if it's running and restart. 
+4. I received a missing module error referencing `react-is` when I did this. It may have something to do with us having merged our Sanity project with our Next project but a quick googling found that we just need to supply the dependency and then restart the server again: `npm i react-is` 
+5. You should now see your very own Sanity Playground in your dev environment for your studio.
+
+
+#### Generate your First Query to Fetch Data from the Server
 
 In the `app/(user)/page.tsx` file, let's create our first query. 
 
@@ -352,7 +387,7 @@ In the `app/(user)/page.tsx` file, let's create our first query.
     ```
     const query = groq`
       *[_type=='project'] {
-        
+
       }
     `
     ```
