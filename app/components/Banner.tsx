@@ -5,7 +5,7 @@ function Banner() {
     <div className='flex flex-col lg:flex-row lg:space-x-5 justify-between font-medium px-10 py-5 mb-5'>
       <div>
         <h1 className='text-7xl'>My Life in Tech</h1>
-        <h2 className="mt-5 md:mt-0">
+        <h2 className="mt-5 md:mt-3">
           Web Projects, Techno-philosophical commentary, My personal IT #Homelab & More
         </h2>
       </div>
