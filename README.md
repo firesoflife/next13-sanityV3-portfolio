@@ -393,6 +393,7 @@ In the `app/(user)/page.tsx` file, let's create our first query.
     ```
 
 
+
 ---
 ## Part II
 
