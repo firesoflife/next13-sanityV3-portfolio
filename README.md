@@ -392,6 +392,9 @@ In the `app/(user)/page.tsx` file, let's create our first query.
     `
     ```
 
+#### (Optional) Create a Better Admin Structure with Structure Builder
+
+
 
 
 ---
